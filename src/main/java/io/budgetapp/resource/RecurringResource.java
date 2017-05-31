@@ -1,5 +1,6 @@
 package io.budgetapp.resource;
 
+import io.budgetapp.model.Category;
 import io.budgetapp.model.Recurring;
 import io.budgetapp.model.User;
 import io.budgetapp.model.form.recurring.AddRecurringForm;
@@ -17,6 +18,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.hdiv.services.TrustAssertion;
+
 import java.util.List;
 
 /**
@@ -54,14 +58,14 @@ public class RecurringResource extends AbstractResource {
     @GET
     @UnitOfWork
     @Path("/{id}/transactions")
-    public Response findTransactions(@Auth User user, @PathParam("id") long id) {
+    public Response findTransactions(@Auth User user, @TrustAssertion(idFor=Recurring.class) @PathParam("id") long id) {
         return ok(financeService.findTransactionsByRecurring(user, id));
     }
 
     @DELETE
     @UnitOfWork
     @Path("/{id}")
-    public Response delete(@Auth User user, @PathParam("id") long id) {
+    public Response delete(@Auth User user,  @TrustAssertion(idFor=Recurring.class) @PathParam("id") long id) {
         financeService.deleteRecurring(user, id);
         return deleted();
     }

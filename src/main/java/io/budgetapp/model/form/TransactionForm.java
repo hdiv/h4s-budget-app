@@ -7,11 +7,14 @@ import io.budgetapp.model.RecurringType;
 import java.io.Serializable;
 import java.util.Date;
 
+import org.hdiv.services.SecureIdContainer;
+import org.hdiv.services.TrustAssertion;
+
 /**
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TransactionForm implements Serializable {
+public class TransactionForm implements Serializable , SecureIdContainer {
 
     private static final long serialVersionUID = 1432079737348530213L;
 
@@ -20,7 +23,9 @@ public class TransactionForm implements Serializable {
     private Date transactionOn;
     private Boolean recurring;
     private RecurringType recurringType;
-    private Budget budget;
+    
+    @TrustAssertion(idFor=Budget.class)
+    private long budgetId;
 
     public double getAmount() {
         return amount;
@@ -66,12 +71,12 @@ public class TransactionForm implements Serializable {
         this.recurringType = recurringType;
     }
 
-    public Budget getBudget() {
-        return budget;
+    public long getBudgetId() {
+        return budgetId;
     }
 
-    public void setBudget(Budget budget) {
-        this.budget = budget;
+    public void setBudgetId(long budget) {
+        this.budgetId = budget;
     }
 
     @Override
@@ -82,7 +87,7 @@ public class TransactionForm implements Serializable {
                 ", transactionOn=" + transactionOn +
                 ", recurring=" + recurring +
                 ", recurringType=" + recurringType +
-                ", budget=" + budget +
+                ", budget=" + budgetId +
                 '}';
     }
 }

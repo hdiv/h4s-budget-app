@@ -4,6 +4,9 @@ import io.budgetapp.model.form.budget.AddBudgetForm;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+
+import org.hdiv.services.SecureIdentifiable;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -12,7 +15,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "budgets")
-public class Budget implements Serializable {
+public class Budget implements Serializable, SecureIdentifiable<Long> {
 
     private static final long serialVersionUID = 2625666273036891436L;
 

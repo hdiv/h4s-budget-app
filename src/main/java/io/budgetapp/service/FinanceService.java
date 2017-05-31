@@ -435,7 +435,7 @@ public class FinanceService {
     //==================================================================
     public Transaction addTransaction(User user, TransactionForm transactionForm) {
 
-        Budget budget = budgetDAO.findById(user, transactionForm.getBudget().getId());
+        Budget budget = budgetDAO.findById(user, transactionForm.getBudgetId());
 
         // validation
         if(transactionForm.getAmount() == 0) {
@@ -473,7 +473,7 @@ public class FinanceService {
         transaction.setRemark(transactionForm.getRemark());
         transaction.setAuto(Boolean.TRUE.equals(transactionForm.getRecurring()));
         transaction.setTransactionOn(transactionForm.getTransactionOn());
-        transaction.setBudget(transactionForm.getBudget());
+        transaction.setBudget(new Budget(transactionForm.getBudgetId()));
         if(Boolean.TRUE.equals(transactionForm.getRecurring())) {
             transaction.setRecurring(recurring);
         }

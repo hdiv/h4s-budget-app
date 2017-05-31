@@ -15,6 +15,9 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+
+import org.hdiv.services.SecureIdentifiable;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -24,7 +27,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "recurrings")
-public class Recurring implements Serializable {
+public class Recurring implements Serializable, SecureIdentifiable<Long> {
 
     private static final long serialVersionUID = -2889004877850258404L;
 
@@ -35,6 +38,7 @@ public class Recurring implements Serializable {
     private Date createdAt;
     private BudgetType budgetType;
     private String remark;
+    
     private List<Transaction> transactions;
 
     // not in DB

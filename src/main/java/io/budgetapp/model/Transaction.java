@@ -1,6 +1,9 @@
 package io.budgetapp.model;
 
 import javax.persistence.*;
+
+import org.hdiv.services.SecureIdentifiable;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -9,7 +12,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "transactions")
-public class Transaction implements Serializable {
+public class Transaction implements Serializable, SecureIdentifiable<Long> {
 
     private static final long serialVersionUID = 2625666273036891436L;
 

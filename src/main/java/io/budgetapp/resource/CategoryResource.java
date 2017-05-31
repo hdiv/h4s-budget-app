@@ -19,6 +19,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.hdiv.services.TrustAssertion;
+
 import java.util.List;
 
 /**
@@ -56,7 +59,7 @@ public class CategoryResource extends AbstractResource {
     @DELETE
     @UnitOfWork
     @Path("/{id}")
-    public Response delete(@Auth User user, @PathParam("id") long id) {
+    public Response delete(@Auth User user, @TrustAssertion(idFor=Category.class) @PathParam("id") long id) {
         financeService.deleteCategory(user, id);
         return deleted();
     }
@@ -64,7 +67,7 @@ public class CategoryResource extends AbstractResource {
     @GET
     @UnitOfWork
     @Path("/{id}")
-    public Category findById(@PathParam("id") long id) {
+    public Category findById(@TrustAssertion(idFor=Category.class) @PathParam("id") long id) {
         return financeService.findCategoryById(id);
     }
 
@@ -72,7 +75,7 @@ public class CategoryResource extends AbstractResource {
     @GET
     @UnitOfWork
     @Path("/{id}/budgets")
-    public List<Budget> findBudgets(@Auth User user, @PathParam("id") long id) {
+    public List<Budget> findBudgets(@Auth User user, @TrustAssertion(idFor=Category.class) @PathParam("id") long id) {
         return financeService.findBudgetsByCategory(user, id);
     }
 

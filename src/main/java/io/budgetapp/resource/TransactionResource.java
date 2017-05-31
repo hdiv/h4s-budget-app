@@ -1,6 +1,7 @@
 package io.budgetapp.resource;
 
 import io.budgetapp.model.Point;
+import io.budgetapp.model.Recurring;
 import io.budgetapp.model.Transaction;
 import io.budgetapp.model.User;
 import io.budgetapp.model.form.TransactionForm;
@@ -11,6 +12,9 @@ import io.dropwizard.hibernate.UnitOfWork;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.hdiv.services.TrustAssertion;
+
 import java.util.List;
 
 /**
@@ -48,14 +52,14 @@ public class TransactionResource extends AbstractResource {
     @GET
     @UnitOfWork
     @Path("/{id}")
-    public Transaction findById(@PathParam("id") long id) {
+    public Transaction findById( @TrustAssertion(idFor=Transaction.class) @PathParam("id") long id) {
         return financeService.findTransactionById(id);
     }
 
     @DELETE
     @UnitOfWork
     @Path("/{id}")
-    public Response delete(@Auth User user, @PathParam("id") long id) {
+    public Response delete(@Auth User user,  @TrustAssertion(idFor=Transaction.class) @PathParam("id") long id) {
         boolean deleted = financeService.deleteTransaction(user, id);
         if(deleted) {
             return deleted();

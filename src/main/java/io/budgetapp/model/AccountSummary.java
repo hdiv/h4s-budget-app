@@ -4,10 +4,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hdiv.services.SecureIdContainer;
+
 /**
  *
  */
-public class AccountSummary implements Serializable {
+public class AccountSummary implements Serializable, SecureIdContainer {
 
     private static final long serialVersionUID = 5319703962527161534L;
 

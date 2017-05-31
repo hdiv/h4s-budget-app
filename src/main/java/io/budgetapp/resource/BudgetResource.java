@@ -21,6 +21,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.hdiv.services.TrustAssertion;
+
 import java.util.List;
 
 /**
@@ -58,7 +61,7 @@ public class BudgetResource extends AbstractResource {
     @PUT
     @UnitOfWork
     @Path("/{id}")
-    public Response update(@Auth User user, @PathParam("id") long id, @Valid UpdateBudgetForm budgetForm) {
+    public Response update(@Auth User user, @TrustAssertion(idFor=Budget.class) @PathParam("id") long id, @Valid UpdateBudgetForm budgetForm) {
         budgetForm.setId(id);
         Budget budget = financeService.updateBudget(user, budgetForm);
         return ok(budget);
@@ -67,7 +70,7 @@ public class BudgetResource extends AbstractResource {
     @DELETE
     @UnitOfWork
     @Path("/{id}")
-    public Response delete(@Auth User user, @PathParam("id") long id) {
+    public Response delete(@Auth User user, @TrustAssertion(idFor=Budget.class) @PathParam("id") long id) {
         financeService.deleteBudget(user, id);
         return deleted();
     }
@@ -75,14 +78,14 @@ public class BudgetResource extends AbstractResource {
     @GET
     @UnitOfWork
     @Path("/{id}")
-    public Budget findById(@Auth User user, @PathParam("id") long id) {
+    public Budget findById(@Auth User user, @TrustAssertion(idFor=Budget.class) @PathParam("id") long id) {
         return financeService.findBudgetById(user, id);
     }
 
     @GET
     @UnitOfWork
     @Path("/{id}/transactions")
-    public List<Transaction> findTransactions(@Auth User user, @PathParam("id") long id) {
+    public List<Transaction> findTransactions(@Auth User user, @TrustAssertion(idFor=Budget.class) @PathParam("id") long id) {
         return financeService.findTransactionsByBudget(user, id);
     }
 

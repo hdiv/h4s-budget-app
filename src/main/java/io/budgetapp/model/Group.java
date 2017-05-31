@@ -3,10 +3,12 @@ package io.budgetapp.model;
 import java.io.Serializable;
 import java.util.List;
 
+import org.hdiv.services.SecureIdentifiable;
+
 /**
  *
  */
-public class Group implements Serializable {
+public class Group implements Serializable, SecureIdentifiable<Long> {
 
     private static final long serialVersionUID = -3295824982209236728L;
 
