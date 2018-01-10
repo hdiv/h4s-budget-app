@@ -78,7 +78,7 @@ public class BudgetResource extends AbstractResource {
     @GET
     @UnitOfWork
     @Path("/{id}")
-    public Budget findById(@Auth User user, @TrustAssertion(idFor=Budget.class) @PathParam("id") long id) {
+    public Budget findById(@Auth User user, @PathParam("id") long id) {
         return financeService.findBudgetById(user, id);
     }
 
