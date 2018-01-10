@@ -10,6 +10,7 @@ import org.tuckey.web.filters.urlrewrite.UrlRewriteFilter;
 
 import com.bazaarvoice.dropwizard.assets.ConfiguredAssetsBundle;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
+import com.hdivsecurity.services.pb.technology.dropwizard.DropwizardContext;
 
 import io.budgetapp.application.ConstraintViolationExceptionMapper;
 import io.budgetapp.application.DataConstraintExceptionMapper;
@@ -171,7 +172,7 @@ public class BudgetApplication extends Application<AppConfiguration> {
 		environment.jersey().register(new ConstraintViolationExceptionMapper());
 		environment.jersey().register(new SQLConstraintViolationExceptionMapper());
 
-		DropwizardContextInitializer.initialize(environment);
+		DropwizardContext.initialize(environment, DelegateConfig.class);
 	}
 
 }
