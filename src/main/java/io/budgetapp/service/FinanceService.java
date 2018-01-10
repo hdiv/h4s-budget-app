@@ -1,6 +1,8 @@
 package io.budgetapp.service;
 
+import com.google.common.collect.ImmutableList;
 import io.budgetapp.application.DataConstraintException;
+import io.budgetapp.application.NotFoundException;
 import io.budgetapp.crypto.PasswordEncoder;
 import io.budgetapp.dao.AuthTokenDAO;
 import io.budgetapp.dao.CategoryDAO;
@@ -32,7 +34,6 @@ import io.budgetapp.model.form.report.SearchFilter;
 import io.budgetapp.model.form.user.Password;
 import io.budgetapp.model.form.user.Profile;
 import io.budgetapp.util.Util;
-import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,15 +42,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -60,7 +53,6 @@ public class FinanceService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FinanceService.class);
     private static final DateTimeFormatter SUMMARY_DATE_FORMATTER = DateTimeFormatter.ofPattern("dd MMM");
 
-    private final SessionFactory sessionFactory;
     private final UserDAO userDAO;
     private final BudgetDAO budgetDAO;
     private final BudgetTypeDAO budgetTypeDAO;
@@ -71,8 +63,7 @@ public class FinanceService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public FinanceService(SessionFactory sessionFactory, UserDAO userDAO, BudgetDAO budgetDAO, BudgetTypeDAO budgetTypeDAO, CategoryDAO categoryDAO, TransactionDAO transactionDAO, RecurringDAO recurringDAO, AuthTokenDAO authTokenDAO, PasswordEncoder passwordEncoder) {
-        this.sessionFactory = sessionFactory;
+    public FinanceService(UserDAO userDAO, BudgetDAO budgetDAO, BudgetTypeDAO budgetTypeDAO, CategoryDAO categoryDAO, TransactionDAO transactionDAO, RecurringDAO recurringDAO, AuthTokenDAO authTokenDAO, PasswordEncoder passwordEncoder) {
         this.userDAO = userDAO;
         this.budgetDAO = budgetDAO;
         this.budgetTypeDAO = budgetTypeDAO;
@@ -83,11 +74,6 @@ public class FinanceService {
 
         this.passwordEncoder = passwordEncoder;
     }
-
-    public SessionFactory getSessionFactory() {
-        return sessionFactory;
-    }
-
 
     //==================================================================
     // USER
@@ -130,11 +116,7 @@ public class FinanceService {
 
         Optional<AuthToken> authToken = authTokenDAO.find(token);
 
-        if(authToken.isPresent()) {
-            return Optional.of(authToken.get().getUser());
-        } else {
-            return Optional.empty();
-        }
+        return authToken.map(AuthToken::getUser);
     }
 
     public Optional<User> login(LoginForm login) {
@@ -162,21 +144,10 @@ public class FinanceService {
 
 
     public AccountSummary findAccountSummaryByUser(User user, Integer month, Integer year) {
-        if(month == null || year == null) {
-            LocalDate now = LocalDate.now();
-            month = now.getMonthValue();
-            year = now.getYear();
-        }
+        List<Budget> budgets = findBudgetByUser(user, month, year);
+
         LOGGER.debug("Find account summary {} {}-{}", user, month, year);
         AccountSummary accountSummary = new AccountSummary();
-        List<Budget> budgets = budgetDAO.findBudgets(user, month, year, true);
-
-        // no budgets, first time access
-        if(budgets.isEmpty()) {
-            LOGGER.debug("First time access budgets {} {}-{}", user, month, year);
-            initCategoriesAndBudgets(user, month, year);
-            budgets = budgetDAO.findBudgets(user, month, year, true);
-        }
         Map<Category, List<Budget>> grouped = budgets
                 .stream()
                 .collect(Collectors.groupingBy(Budget::getCategory));
@@ -193,7 +164,7 @@ public class FinanceService {
             accountSummary.getGroups().add(group);
         }
 
-        Collections.sort(accountSummary.getGroups(), (o1, o2) -> o1.getId().compareTo(o2.getId()));
+        accountSummary.getGroups().sort(Comparator.comparing(Group::getId));
         return accountSummary;
     }
 
@@ -294,6 +265,27 @@ public class FinanceService {
 
     public List<Budget> findBudgetsByUser(User user) {
         return budgetDAO.findBudgets(user);
+    }
+
+    public List<Budget> findBudgetByUser(User user, Integer month, Integer year) {
+        LOGGER.debug("Find budget for user {} {}-{}", user, month, year);
+
+        if(month == null || year == null) {
+            LocalDate now = LocalDate.now();
+            month = now.getMonthValue();
+            year = now.getYear();
+        }
+
+        List<Budget> budgets = budgetDAO.findBudgets(user, month, year, false);
+
+        // no budgets, first time access
+        if(budgets.isEmpty()) {
+            LOGGER.debug("First time access budgets {} {}-{}", user, month, year);
+            initCategoriesAndBudgets(user, month, year);
+            budgets = budgetDAO.findBudgets(user, month, year, false);
+        }
+
+        return budgets;
     }
 
     public Budget findBudgetById(User user, long budgetId) {
@@ -434,51 +426,76 @@ public class FinanceService {
     // TRANSACTION
     //==================================================================
     public Transaction addTransaction(User user, TransactionForm transactionForm) {
+        return addTransactions(user, ImmutableList.of(transactionForm)).get(0);
+    }
 
-        Budget budget = budgetDAO.findById(user, transactionForm.getBudgetId());
+    public List<Transaction> addTransactions(User user, List<TransactionForm> transactionForms) {
+        Set<Long> budgetIds = transactionForms
+                .stream()
+                .map(TransactionForm::getBudgetId)
+                .collect(Collectors.toSet());
+
+        List<Budget> budgets = budgetDAO.findByIds(user, budgetIds);
+
+        Map<Long, Budget> budgetMap = new HashMap<>();
+
+        for (Budget budget : budgets) {
+            budgetMap.put(budget.getId(), budget);
+        }
+
+        List<Transaction> transactions = new ArrayList<>();
 
         // validation
-        if(transactionForm.getAmount() == 0) {
-            throw new DataConstraintException("amount", "Amount is required");
+        for (TransactionForm transactionForm : transactionForms) {
+
+            Budget budget = budgetMap.get(transactionForm.getBudgetId());
+            if (budget == null) {
+                throw new NotFoundException();
+            }
+
+            if (transactionForm.getAmount() == 0) {
+                throw new DataConstraintException("amount", "Amount is required");
+            }
+
+            if (Boolean.TRUE.equals(transactionForm.getRecurring()) && transactionForm.getRecurringType() == null) {
+                throw new DataConstraintException("recurringType", "Recurring Type is required");
+            }
+
+            Date transactionOn = transactionForm.getTransactionOn();
+            if (!Util.inMonth(transactionOn, budget.getPeriod())) {
+                throw new DataConstraintException("transactionOn", "Transaction Date must within " + Util.toFriendlyMonthDisplay(budget.getPeriod()) + " " + (budget.getPeriod().getYear() + 1900));
+            }
+            // end validation
+
+            budget.setActual(budget.getActual() + transactionForm.getAmount());
+            budgetDAO.update(budget);
+
+            Recurring recurring = new Recurring();
+            if (Boolean.TRUE.equals(transactionForm.getRecurring())) {
+                LOGGER.debug("Add recurring {} by {}", transactionForm, user);
+                recurring.setAmount(transactionForm.getAmount());
+                recurring.setRecurringType(transactionForm.getRecurringType());
+                recurring.setBudgetType(budget.getBudgetType());
+                recurring.setRemark(transactionForm.getRemark());
+                recurring.setLastRunAt(transactionForm.getTransactionOn());
+                recurringDAO.addRecurring(recurring);
+            }
+
+            Transaction transaction = new Transaction();
+            transaction.setName(budget.getName());
+            transaction.setAmount(transactionForm.getAmount());
+            transaction.setRemark(transactionForm.getRemark());
+            transaction.setAuto(Boolean.TRUE.equals(transactionForm.getRecurring()));
+            transaction.setTransactionOn(transactionForm.getTransactionOn());
+            transaction.setBudget(new Budget(transactionForm.getBudgetId()));
+            if (Boolean.TRUE.equals(transactionForm.getRecurring())) {
+                transaction.setRecurring(recurring);
+            }
+
+            transactions.add(transaction);
         }
 
-        if(Boolean.TRUE.equals(transactionForm.getRecurring()) && transactionForm.getRecurringType() == null) {
-            throw new DataConstraintException("recurringType", "Recurring Type is required");
-        }
-
-        Date transactionOn = transactionForm.getTransactionOn();
-        if(!Util.inMonth(transactionOn, budget.getPeriod())) {
-            throw new DataConstraintException("transactionOn", "Transaction Date must within " + Util.toFriendlyMonthDisplay(budget.getPeriod()) + " " + (budget.getPeriod().getYear() + 1900));
-        }
-        // end validation
-
-
-        budget.setActual(budget.getActual() + transactionForm.getAmount());
-        budgetDAO.update(budget);
-
-        Recurring recurring = new Recurring();
-        if(Boolean.TRUE.equals(transactionForm.getRecurring())) {
-            LOGGER.debug("Add recurring {} by {}", transactionForm, user);
-            recurring.setAmount(transactionForm.getAmount());
-            recurring.setRecurringType(transactionForm.getRecurringType());
-            recurring.setBudgetType(budget.getBudgetType());
-            recurring.setRemark(transactionForm.getRemark());
-            recurring.setLastRunAt(transactionForm.getTransactionOn());
-            recurringDAO.addRecurring(recurring);
-        }
-
-        Transaction transaction = new Transaction();
-        transaction.setName(budget.getName());
-        transaction.setAmount(transactionForm.getAmount());
-        transaction.setRemark(transactionForm.getRemark());
-        transaction.setAuto(Boolean.TRUE.equals(transactionForm.getRecurring()));
-        transaction.setTransactionOn(transactionForm.getTransactionOn());
-        transaction.setBudget(new Budget(transactionForm.getBudgetId()));
-        if(Boolean.TRUE.equals(transactionForm.getRecurring())) {
-            transaction.setRecurring(recurring);
-        }
-
-        return transactionDAO.addTransaction(transaction);
+        return transactionDAO.addTransactions(transactions);
     }
 
     public boolean deleteTransaction(User user, long transactionId) {
@@ -627,7 +644,7 @@ public class FinanceService {
             points.add(point);
         }
 
-        Collections.sort(points, (p1, p2) -> Double.compare(p2.getValue(), p1.getValue()));
+        points.sort((p1, p2) -> Double.compare(p2.getValue(), p1.getValue()));
         return points;
     }
 

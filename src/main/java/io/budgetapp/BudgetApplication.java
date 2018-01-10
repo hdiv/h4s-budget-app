@@ -124,9 +124,8 @@ public class BudgetApplication extends Application<AppConfiguration> {
 		final RecurringDAO recurringDAO = new RecurringDAO(hibernate.getSessionFactory());
 		final AuthTokenDAO authTokenDAO = new AuthTokenDAO(hibernate.getSessionFactory());
 
-		// service
-		final FinanceService financeService = new FinanceService(hibernate.getSessionFactory(), userDAO, budgetDAO, budgetTypeDAO,
-				categoryDAO, transactionDAO, recurringDAO, authTokenDAO, passwordEncoder);
+        // service
+        final FinanceService financeService = new FinanceService(userDAO, budgetDAO, budgetTypeDAO, categoryDAO, transactionDAO, recurringDAO, authTokenDAO, passwordEncoder);
 
 		// jobs
 		final RecurringJob recurringJob = new UnitOfWorkAwareProxyFactory(hibernate).create(RecurringJob.class, FinanceService.class,

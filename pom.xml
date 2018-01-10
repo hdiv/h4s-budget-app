@@ -12,7 +12,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <dropwizard.version>1.0.6</dropwizard.version>
+    <dropwizard.version>1.1.2</dropwizard.version>
     <findbugs.version>3.0.4</findbugs.version>
   </properties>
 
@@ -101,18 +101,18 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <version>2.10</version>
-                <executions>
-                    <execution>
-                        <id>build-classpath</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>build-classpath</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <outputFile>classpath.txt</outputFile>
-                </configuration>
+        <executions>
+          <execution>
+            <id>build-classpath</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>build-classpath</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <outputFile>classpath.txt</outputFile>
+        </configuration>
       </plugin>
     </plugins>
   </build>

@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response;
 import org.hdiv.services.TrustAssertion;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -47,6 +48,17 @@ public class TransactionResource extends AbstractResource {
     public Response add(@Auth User user, TransactionForm transactionForm) {
         Transaction transaction = financeService.addTransaction(user, transactionForm);
         return created(transaction, transaction.getId());
+    }
+
+    @POST
+    @UnitOfWork
+    @Path("/batched")
+    public List<Response> add(@Auth User user, List<TransactionForm> transactionForms) {
+        List<Transaction> transactions = financeService.addTransactions(user, transactionForms);
+        return transactions
+                .stream()
+                .map(transaction -> created(transaction, transaction.getId()))
+                .collect(Collectors.toList());
     }
 
     @GET
