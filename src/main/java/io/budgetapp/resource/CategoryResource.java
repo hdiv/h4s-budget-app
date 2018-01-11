@@ -59,7 +59,7 @@ public class CategoryResource extends AbstractResource {
     @DELETE
     @UnitOfWork
     @Path("/{id}")
-    public Response delete(@Auth User user, @TrustAssertion(idFor=Category.class) @PathParam("id") long id) {
+    public Response delete(@Auth User user, @PathParam("id") long id) {
         financeService.deleteCategory(user, id);
         return deleted();
     }
@@ -67,7 +67,7 @@ public class CategoryResource extends AbstractResource {
     @GET
     @UnitOfWork
     @Path("/{id}")
-    public Category findById(@TrustAssertion(idFor=Category.class) @PathParam("id") long id) {
+    public Category findById(@PathParam("id") long id) {
         return financeService.findCategoryById(id);
     }
 

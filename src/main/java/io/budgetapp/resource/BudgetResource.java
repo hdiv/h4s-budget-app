@@ -54,7 +54,7 @@ public class BudgetResource extends AbstractResource {
     @GET
     @UnitOfWork
     @Path("/{month}/{year}")
-    public List<Budget> getBudgets(@Auth User user, @PathParam("month") int month, @PathParam("year") int year) {
+    public List<Budget> getBudgets(@Auth User user, @TrustAssertion @PathParam("month") int month, @TrustAssertion @PathParam("year") int year) {
         return financeService.findBudgetByUser(user, month, year);
     }
 
@@ -68,7 +68,7 @@ public class BudgetResource extends AbstractResource {
     @PUT
     @UnitOfWork
     @Path("/{id}")
-    public Response update(@Auth User user, @TrustAssertion(idFor=Budget.class) @PathParam("id") long id, @Valid UpdateBudgetForm budgetForm) {
+    public Response update(@Auth User user, @PathParam("id") long id, @Valid UpdateBudgetForm budgetForm) {
         budgetForm.setId(id);
         Budget budget = financeService.updateBudget(user, budgetForm);
         return ok(budget);
@@ -77,7 +77,7 @@ public class BudgetResource extends AbstractResource {
     @DELETE
     @UnitOfWork
     @Path("/{id}")
-    public Response delete(@Auth User user, @TrustAssertion(idFor=Budget.class) @PathParam("id") long id) {
+    public Response delete(@Auth User user, @PathParam("id") long id) {
         financeService.deleteBudget(user, id);
         return deleted();
     }
@@ -92,7 +92,7 @@ public class BudgetResource extends AbstractResource {
     @GET
     @UnitOfWork
     @Path("/{id}/transactions")
-    public List<Transaction> findTransactions(@Auth User user, @TrustAssertion(idFor=Budget.class) @PathParam("id") long id) {
+    public List<Transaction> findTransactions(@Auth User user, @PathParam("id") long id) {
         return financeService.findTransactionsByBudget(user, id);
     }
 

@@ -58,14 +58,14 @@ public class RecurringResource extends AbstractResource {
     @GET
     @UnitOfWork
     @Path("/{id}/transactions")
-    public Response findTransactions(@Auth User user, @TrustAssertion(idFor=Recurring.class) @PathParam("id") long id) {
+    public Response findTransactions(@Auth User user, @PathParam("id") long id) {
         return ok(financeService.findTransactionsByRecurring(user, id));
     }
 
     @DELETE
     @UnitOfWork
     @Path("/{id}")
-    public Response delete(@Auth User user,  @TrustAssertion(idFor=Recurring.class) @PathParam("id") long id) {
+    public Response delete(@Auth User user, @PathParam("id") long id) {
         financeService.deleteRecurring(user, id);
         return deleted();
     }

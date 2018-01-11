@@ -13,8 +13,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.hdiv.services.TrustAssertion;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -64,14 +62,14 @@ public class TransactionResource extends AbstractResource {
     @GET
     @UnitOfWork
     @Path("/{id}")
-    public Transaction findById( @TrustAssertion(idFor=Transaction.class) @PathParam("id") long id) {
+    public Transaction findById(@PathParam("id") long id) {
         return financeService.findTransactionById(id);
     }
 
     @DELETE
     @UnitOfWork
     @Path("/{id}")
-    public Response delete(@Auth User user,  @TrustAssertion(idFor=Transaction.class) @PathParam("id") long id) {
+    public Response delete(@Auth User user, @PathParam("id") long id) {
         boolean deleted = financeService.deleteTransaction(user, id);
         if(deleted) {
             return deleted();
