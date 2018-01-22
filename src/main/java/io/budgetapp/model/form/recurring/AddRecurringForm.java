@@ -1,14 +1,11 @@
 package io.budgetapp.model.form.recurring;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import io.budgetapp.model.Budget;
 import io.budgetapp.model.RecurringType;
 
 import javax.validation.constraints.NotNull;
 
 import org.hdiv.services.SecureIdContainer;
-import org.hdiv.services.TrustAssertion;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -21,7 +18,6 @@ public class AddRecurringForm implements Serializable, SecureIdContainer {
 
     private static final long serialVersionUID = -3317443535487916735L;
 
-    @TrustAssertion(idFor=Budget.class)
     private Long budgetId;
     private Double amount;
     private Date recurringAt;

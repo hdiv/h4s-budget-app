@@ -19,9 +19,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.hdiv.services.TrustAssertion;
-
 import java.util.List;
 
 /**
@@ -75,7 +72,7 @@ public class CategoryResource extends AbstractResource {
     @GET
     @UnitOfWork
     @Path("/{id}/budgets")
-    public List<Budget> findBudgets(@Auth User user, @TrustAssertion(idFor=Category.class) @PathParam("id") long id) {
+    public List<Budget> findBudgets(@Auth User user, @PathParam("id") long id) {
         return financeService.findBudgetsByCategory(user, id);
     }
 

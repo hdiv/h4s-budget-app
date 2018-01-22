@@ -29,6 +29,7 @@ public class DelegateConfig extends HdivServicesSecurityConfigurerAdapter {
 		builder.showErrorPageOnEditableValidation(true);
 		builder.reuseExistingPageInAjaxRequest(false);
 		builder.hypermediaSupport(false).csrfHeader(false);
+		builder.allowPartialSubEntities(true);
 	}
 
 	@Override

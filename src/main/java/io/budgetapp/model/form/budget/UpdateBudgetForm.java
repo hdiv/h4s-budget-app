@@ -18,7 +18,7 @@ import java.io.Serializable;
 public class UpdateBudgetForm extends BudgetForm implements Serializable, SecureIdContainer {
 
     private static final long serialVersionUID = 7677505567308081026L;
-
+    
     @TrustAssertion(idFor=Budget.class)
     private Long id;
     private double actual;

@@ -432,7 +432,8 @@ public class FinanceService {
     public List<Transaction> addTransactions(User user, List<TransactionForm> transactionForms) {
         Set<Long> budgetIds = transactionForms
                 .stream()
-                .map(TransactionForm::getBudgetId)
+                .map(TransactionForm::getBudget)
+                .map(Budget::getId)
                 .collect(Collectors.toSet());
 
         List<Budget> budgets = budgetDAO.findByIds(user, budgetIds);
@@ -448,7 +449,7 @@ public class FinanceService {
         // validation
         for (TransactionForm transactionForm : transactionForms) {
 
-            Budget budget = budgetMap.get(transactionForm.getBudgetId());
+            Budget budget = budgetMap.get(transactionForm.getBudget().getId());
             if (budget == null) {
                 throw new NotFoundException();
             }
@@ -487,7 +488,7 @@ public class FinanceService {
             transaction.setRemark(transactionForm.getRemark());
             transaction.setAuto(Boolean.TRUE.equals(transactionForm.getRecurring()));
             transaction.setTransactionOn(transactionForm.getTransactionOn());
-            transaction.setBudget(new Budget(transactionForm.getBudgetId()));
+            transaction.setBudget(transactionForm.getBudget());
             if (Boolean.TRUE.equals(transactionForm.getRecurring())) {
                 transaction.setRecurring(recurring);
             }

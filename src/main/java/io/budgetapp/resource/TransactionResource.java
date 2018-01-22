@@ -1,7 +1,6 @@
 package io.budgetapp.resource;
 
 import io.budgetapp.model.Point;
-import io.budgetapp.model.Recurring;
 import io.budgetapp.model.Transaction;
 import io.budgetapp.model.User;
 import io.budgetapp.model.form.TransactionForm;
@@ -12,7 +11,6 @@ import io.dropwizard.hibernate.UnitOfWork;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import java.util.List;
 import java.util.stream.Collectors;
 

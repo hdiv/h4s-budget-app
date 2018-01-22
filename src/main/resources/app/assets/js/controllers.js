@@ -352,15 +352,7 @@ financeControllers.controller('ManageController', function ($scope, $routeParams
     });
 
     modalInstance.result.then(function (selected) {
-    	
-    	var newObject = {
-    		id: selected.id,
-    		actual: selected.actual,
-    		name: selected.name,
-    		projected: selected.projected
-    	};
-    
-      BudgetService.update(newObject);
+      BudgetService.update(selected);
     }, function () {
 
     });
@@ -468,17 +460,7 @@ var TransactionModalController = function ($scope, $modalInstance, budget, Trans
   // TODO https://github.com/angular-ui/bootstrap/issues/969
   $scope.ok = function (form) {
     $scope.transaction.loading = true;
-    
-    var transactionToSend = {
-    	budgetId: $scope.transaction.budget.id,
-    	  amount: $scope.transaction.amount,
-    	  remark: $scope.transaction.remark,
-    	  transactionOn: $scope.transaction.transactionOn,
-    	  recurring: $scope.transaction.recurring,
-    	  recurringType: $scope.transaction.recurringType
-    };
-    
-    TransactionService.save(transactionToSend).$promise.then(function() {
+    TransactionService.save($scope.transaction).$promise.then(function() {
       budget.actual += $scope.transaction.amount;
       $scope.transaction.loading = false;
       $modalInstance.close();
@@ -531,7 +513,6 @@ financeControllers.controller('BudgetController', function ($scope, CategoryServ
     } else {
       budget.categoryId = null;
     }
-    budget.category = null;
     BudgetService.save($scope.budget).$promise.then(function() {
       $scope.success = true;
       $scope.message = "Successfully created Budget";
@@ -646,7 +627,6 @@ financeControllers.controller('RecurringController', function ($scope, Recurring
     } else {
       recurring.budgetId = null;
     }
-    recurring.budget = null;
     RecurringService.save($scope.recurring).$promise.then(function() {
       $scope.success = true;
       $scope.message = "Successfully created Recurring";
