@@ -177,10 +177,6 @@
 		<groupId>com.hdivsecurity</groupId>
 		<artifactId>hdiv-for-services</artifactId>
 		<version>1.7.8-SNAPSHOT</version>
-		<exclusions>
-			<exclusion>
-			</exclusion>
-		</exclusions>
 	</dependency>
 	<dependency>
 		<groupId>commons-dbcp</groupId>
