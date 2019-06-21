@@ -110,9 +110,6 @@
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <outputFile>classpath.txt</outputFile>
-        </configuration>
       </plugin>
     </plugins>
   </build>
