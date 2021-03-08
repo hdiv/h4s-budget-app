@@ -115,6 +115,9 @@ public class BudgetApplication extends Application<AppConfiguration> {
 		// password encoder
 		final PasswordEncoder passwordEncoder = new PasswordEncoder();
 
+		// Hdiv data source config
+		DelegateConfig.setup(configuration, environment);
+
 		// DAO
 		final CategoryDAO categoryDAO = new CategoryDAO(hibernate.getSessionFactory(), configuration);
 		final BudgetDAO budgetDAO = new BudgetDAO(hibernate.getSessionFactory(), configuration);
