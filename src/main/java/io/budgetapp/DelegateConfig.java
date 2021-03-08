@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.hdiv.config.annotation.ExclusionRegistry;
 import org.hdiv.config.annotation.RuleRegistry;
 import org.hdiv.config.annotation.ValidationConfigurer;
@@ -18,9 +17,18 @@ import com.hdivsecurity.services.config.EnableHdiv4ServicesSecurityConfiguration
 import com.hdivsecurity.services.config.HdivServicesSecurityConfigurerAdapter;
 import com.hdivsecurity.services.config.ServicesSecurityConfigBuilder;
 
+import io.budgetapp.configuration.AppConfiguration;
+import io.dropwizard.setup.Environment;
+
 @Configuration
 @EnableHdiv4ServicesSecurityConfiguration
 public class DelegateConfig extends HdivServicesSecurityConfigurerAdapter {
+
+	private static DataSource dataSource = null;
+
+	public static void setup(final AppConfiguration conf, final Environment env) {
+		DelegateConfig.dataSource = conf.getDataSourceFactory().build(env.metrics(), "hdiv");
+	}
 
 	@Override
 	public void configure(final ServicesSecurityConfigBuilder builder) {
@@ -49,11 +57,6 @@ public class DelegateConfig extends HdivServicesSecurityConfigurerAdapter {
 	}
 
 	public DataSource externalStorageDataSource() {
-		final BasicDataSource dataSource = new BasicDataSource();
-		dataSource.setDriverClassName("org.postgresql.Driver");
-		dataSource.setUrl("jdbc:postgresql://localhost/postgres");
-		dataSource.setUsername("postgres");
-		dataSource.setPassword("postgres");
 		return dataSource;
 	}
 
