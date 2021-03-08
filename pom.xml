@@ -14,6 +14,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <dropwizard.version>1.1.2</dropwizard.version>
     <findbugs.version>3.0.4</findbugs.version>
+    <hdiv-for-services.version>2.4.1.RC1</hdiv-for-services.version>
   </properties>
 
   <prerequisites>
@@ -173,7 +174,7 @@
 	<dependency>
 		<groupId>com.hdivsecurity</groupId>
 		<artifactId>hdiv-for-services</artifactId>
-		<version>1.7.8-SNAPSHOT</version>
+		<version>${hdiv-for-services.version}</version>
 	</dependency>
 	<dependency>
 		<groupId>commons-dbcp</groupId>
